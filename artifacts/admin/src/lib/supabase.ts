@@ -1,0 +1,498 @@
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim() ?? "";
+const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim() ?? "";
+
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+if (!isSupabaseConfigured) {
+  throw new Error(
+    "[supabase] Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY. " +
+      "Set both secrets in Replit and restart the workflow.",
+  );
+}
+
+// eslint-disable-next-line no-console
+console.info(
+  "[supabase] init",
+  JSON.stringify({
+    url: supabaseUrl,
+    anonKeyLoaded: Boolean(supabaseAnonKey),
+    anonKeyLength: supabaseAnonKey.length,
+  }),
+);
+
+export const supabase: SupabaseClient = createClient(
+  supabaseUrl,
+  supabaseAnonKey,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storageKey: "airbnb-ops-admin-auth",
+    },
+  },
+);
+
+export const SUPABASE_URL_FOR_DEBUG = supabaseUrl;
+export const SUPABASE_ANON_KEY_LOADED = Boolean(supabaseAnonKey);
+
+export type AppRole =
+  | "admin"
+  | "manager"
+  | "accountant"
+  | "sales"
+  | "maintenance"
+  | "cleaner"
+  | "cleaningstaff"
+  | "staff"
+  | "collaborator";
+
+export const ROLES: AppRole[] = [
+  "admin",
+  "manager",
+  "accountant",
+  "sales",
+  "maintenance",
+  "cleaner",
+  "cleaningstaff",
+  "staff",
+  "collaborator",
+];
+
+export const ROLE_LABELS: Record<AppRole, string> = {
+  admin: "Admin",
+  manager: "Manager",
+  accountant: "Accountant",
+  sales: "Sales",
+  maintenance: "Maintenance",
+  cleaner: "Cleaner",
+  cleaningstaff: "Cleaning Staff",
+  staff: "Staff",
+  collaborator: "Cộng tác viên",
+};
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  created_at: string;
+  // Joined relations from the public.users query
+  role: { name: string } | null;
+  team: { id: string; name: string } | null;
+}
+
+export interface Listing {
+  id: string;
+  title: string;
+  description: string | null;
+  address: string | null;
+  city: string | null;
+  country: string | null;
+  bedrooms: number;
+  bathrooms: number;
+  max_guests: number;
+  /** Not surfaced in the UI — price is not part of this app's scope. */
+  base_price?: number;
+  /** Not surfaced in the UI — price is not part of this app's scope. */
+  cleaning_fee?: number;
+  status: "active" | "inactive" | "maintenance";
+  cover_image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  airbnb_listing_name?: string | null;
+}
+
+export interface ListingRoom {
+  id: string;
+  listing_id: string;
+  name: string;
+  position: number;
+  created_at: string;
+}
+
+export interface ListingImage {
+  id: string;
+  listing_id: string;
+  url: string;
+  storage_path: string;
+  position: number;
+  room_id: string | null;
+  created_at: string;
+}
+
+export interface Amenity {
+  id: string;
+  name: string;
+  icon: string | null;
+  category: string | null;
+}
+
+export interface ListingAmenity {
+  listing_id: string;
+  amenity_id: string;
+}
+
+export interface CalendarEntry {
+  id: string;
+  listing_id: string;
+  date: string;
+  is_available: boolean;
+  price_override: number | null;
+  note: string | null;
+}
+
+export type ListingCalStatus =
+  | "available"
+  | "blocked"
+  | "maintenance"
+  | "owner_stay"
+  | "cleaning_hold";
+
+export const LISTING_CAL_STATUSES: ListingCalStatus[] = [
+  "available",
+  "blocked",
+  "maintenance",
+  "owner_stay",
+  "cleaning_hold",
+];
+
+export const LISTING_CAL_STATUS_LABELS: Record<ListingCalStatus, string> = {
+  available: "Trống",
+  blocked: "Đã khóa",
+  maintenance: "Bảo trì",
+  owner_stay: "Chủ nhà ở",
+  cleaning_hold: "Đang dọn",
+};
+
+/** Statuses that prevent new bookings on that date */
+export const BLOCKING_CAL_STATUSES: ListingCalStatus[] = [
+  "blocked",
+  "maintenance",
+  "owner_stay",
+  "cleaning_hold",
+];
+
+export interface ListingCalendar {
+  id: string;
+  listing_id: string;
+  date: string;
+  status: ListingCalStatus;
+  price_override: number | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PricingRule {
+  id: string;
+  listing_id: string;
+  name: string;
+  rule_type: "weekend" | "seasonal" | "length_of_stay" | "minimum_stay";
+  start_date: string | null;
+  end_date: string | null;
+  adjustment_type: "percentage" | "fixed" | "absolute";
+  adjustment_value: number;
+  min_nights: number | null;
+  active: boolean;
+}
+
+export interface Booking {
+  id: string;
+  listing_id: string;
+  guest_name: string;
+  guest_email: string | null;
+  guest_phone: string | null;
+  check_in: string;
+  check_out: string;
+  guests: number;
+  total_amount: number;
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+  source: string | null;
+  notes: string | null;
+  deposit_amount: number;
+  deposit_paid_at: string | null;
+  deposit_note: string | null;
+  created_at: string;
+}
+
+export type TaskType =
+  | "cleaning"
+  | "maintenance"
+  | "inspection"
+  | "guest_support"
+  | "checkin_prepare"
+  | "checkout_check";
+
+export const TASK_TYPE_LABELS: Record<TaskType, string> = {
+  cleaning: "Cleaning",
+  maintenance: "Maintenance",
+  inspection: "Inspection",
+  guest_support: "Guest Support",
+  checkin_prepare: "Check-in Prep",
+  checkout_check: "Checkout Check",
+};
+
+/** Single checklist item stored inside tasks.checklist (JSONB array). */
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  checked: boolean;
+}
+
+/** Photo entry stored in tasks.photos JSONB array. */
+export interface PhotoEntry {
+  url: string;
+  checklist_item: string;
+  uploaded_at: string;
+  uploaded_by: string;
+}
+
+export interface Task {
+  id: string;
+  listing_id: string | null;
+  booking_id: string | null;
+  task_type: TaskType | null;
+  title: string;
+  description: string | null;
+  notes: string | null;
+  /** Employee table id (not profile UUID). Filter staff tasks with assigned_employee_id = employee.id */
+  assigned_employee_id: string | null;
+  due_date: string | null;
+  priority: "low" | "medium" | "high";
+  status: "todo" | "in_progress" | "done" | "cancelled";
+  checklist: ChecklistItem[];
+  /** Rich photo objects: { url, checklist_item, uploaded_at, uploaded_by } */
+  photos: PhotoEntry[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Payment {
+  id: string;
+  booking_id: string | null;
+  listing_id: string | null;
+  payment_type: "deposit" | "balance" | "refund" | "cancellation_fee";
+  amount: number;
+  paid_at: string;
+  status: "paid" | "refunded";
+  note: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Revenue {
+  id: string;
+  listing_id: string | null;
+  booking_id: string | null;
+  amount: number;
+  /** "booking_revenue" | "cancellation_revenue" — deposits now live in payments table */
+  category: string;
+  description: string | null;
+  received_at: string;
+}
+
+export interface Expense {
+  id: string;
+  listing_id: string | null;
+  amount: number;
+  category: string;
+  description: string | null;
+  vendor: string | null;
+  spent_at: string;
+}
+
+export interface ListingBlock {
+  id: string;
+  listing_id: string;
+  start_date: string;
+  end_date: string;
+  reason: string | null;
+  created_at: string;
+}
+
+export const LISTINGS_BUCKET = "listing-images";
+
+// ── HR / Recruitment types ────────────────────────────────────────
+
+export type EmployeeStatus =
+  | "candidate"
+  | "interviewing"
+  | "probation"
+  | "active"
+  | "inactive"
+  | "resigned"
+  | "terminated"
+  | "rejected";
+
+export type EmploymentType =
+  | "full_time"
+  | "part_time"
+  | "freelancer"
+  | "probation"
+  | "intern";
+
+export type GenderType = "male" | "female" | "other" | "prefer_not_to_say";
+
+export interface Department {
+  id: string;
+  name: string;
+  description: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Position {
+  id: string;
+  name: string;
+  description: string | null;
+  department_id: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Employee {
+  id: string;
+  profile_id: string | null;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  date_of_birth: string | null;
+  gender: GenderType | null;
+  address: string | null;
+  emergency_contact: string | null;
+  department_id: string;
+  position_id: string;
+  team_id: string | null;
+  role: string | null;
+  employment_type: EmploymentType;
+  start_date: string | null;
+  end_date: string | null;
+  /** Only present for admin. null for manager/accountant (querying employee_basic_view). */
+  salary_base: number | null;
+  status: EmployeeStatus;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ---- Chat types ----
+
+export interface ChatAttachment {
+  id: string;
+  message_id: string;
+  group_id: string;
+  topic_id: string;
+  uploaded_by: string | null;
+  file_url: string;
+  file_path: string;
+  file_name: string;
+  file_type: string;
+  file_size: number;
+  created_at: string;
+}
+
+export interface ChatGroup {
+  id: string;
+  name: string;
+  description: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatGroupMember {
+  id: string;
+  group_id: string;
+  profile_id: string | null;
+  user_id: string;
+  role: "owner" | "admin" | "member" | null;
+  joined_at: string;
+}
+
+export interface ChatTopic {
+  id: string;
+  group_id: string;
+  title: string;
+  description: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  group_id: string;
+  topic_id: string;
+  sender_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ---- Performance types ----
+
+export interface PerformanceLog {
+  id: string;
+  employee_id: string;
+  task_id: string | null;
+  booking_id: string | null;
+  score_change: number;
+  reason: string;
+  category: string;
+  admin_note: string | null;
+  is_voided: boolean;
+  voided_by: string | null;
+  voided_at: string | null;
+  edited_by: string | null;
+  edited_at: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface PerformanceScore {
+  id: string;
+  employee_id: string;
+  month: number;
+  year: number;
+  total_score: number;
+  bonus_amount: number;
+  penalty_amount: number;
+  rank: number | null;
+  warning_level: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MonthlyReview {
+  id: string;
+  employee_id: string;
+  month: number;
+  year: number;
+  strengths: string | null;
+  weaknesses: string | null;
+  improvement_plan: string | null;
+  manager_comment: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+// ---- Activity Log types ----
+
+export interface ActivityLog {
+  id: string;
+  user_id: string | null;
+  action: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string | null;
+}

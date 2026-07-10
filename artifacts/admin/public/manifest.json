@@ -1,0 +1,21 @@
+{
+  "name": "Airbnb Operations Admin",
+  "short_name": "Airbnb Ops",
+  "description": "Quản lý vận hành Airbnb — đặt phòng, chi tiêu, báo cáo",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ff385c",
+  "lang": "vi",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/logo-app.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
