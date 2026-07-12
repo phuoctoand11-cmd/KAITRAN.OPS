@@ -78,7 +78,7 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Tiêu đề</FormLabel>
                   <FormControl>
                     <Input disabled={!canManage} {...field} />
                   </FormControl>
@@ -91,7 +91,7 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Mô tả</FormLabel>
                   <FormControl>
                     <Textarea rows={4} disabled={!canManage} {...field} />
                   </FormControl>
@@ -105,7 +105,7 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>Địa chỉ</FormLabel>
                     <FormControl>
                       <Input disabled={!canManage} {...field} />
                     </FormControl>
@@ -118,7 +118,7 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
                 name="city"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>City</FormLabel>
+                    <FormLabel>Thành phố</FormLabel>
                     <FormControl>
                       <Input disabled={!canManage} {...field} />
                     </FormControl>
@@ -131,7 +131,7 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>Quốc gia</FormLabel>
                     <FormControl>
                       <Input disabled={!canManage} {...field} />
                     </FormControl>
@@ -157,16 +157,16 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
               )}
             />
             <div className="grid grid-cols-3 gap-4">
-              <NumberField name="bedrooms" label="Bedrooms" form={form} disabled={!canManage} />
-              <NumberField name="bathrooms" label="Bathrooms" form={form} disabled={!canManage} />
-              <NumberField name="max_guests" label="Max guests" form={form} disabled={!canManage} />
+              <NumberField name="bedrooms" label="Phòng ngủ" form={form} disabled={!canManage} />
+              <NumberField name="bathrooms" label="Phòng tắm" form={form} disabled={!canManage} />
+              <NumberField name="max_guests" label="Số khách tối đa" form={form} disabled={!canManage} />
             </div>
             <FormField
               control={form.control}
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value} disabled={!canManage}>
                     <FormControl>
                       <SelectTrigger className="sm:w-[220px]">
@@ -174,9 +174,9 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="maintenance">Maintenance</SelectItem>
+                      <SelectItem value="active">Hoạt động</SelectItem>
+                      <SelectItem value="inactive">Không hoạt động</SelectItem>
+                      <SelectItem value="maintenance">Bảo trì</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -187,7 +187,7 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
               <div className="flex justify-end">
                 <Button type="submit" disabled={saving}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save changes
+                  Lưu thay đổi
                 </Button>
               </div>
             )}

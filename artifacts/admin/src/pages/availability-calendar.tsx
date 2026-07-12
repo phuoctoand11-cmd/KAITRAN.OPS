@@ -271,7 +271,7 @@ export default function AvailabilityCalendar() {
           <div className="flex overflow-hidden rounded-lg border border-border bg-card p-0.5">
             {(
               [
-                { key: "timeline" as const, label: "Timeline", icon: StretchHorizontal },
+                { key: "timeline" as const, label: "Dòng thời gian", icon: StretchHorizontal },
                 { key: "month" as const, label: "Tháng", icon: LayoutGrid },
                 { key: "week" as const, label: "Tuần", icon: CalendarDays },
               ]
@@ -280,7 +280,7 @@ export default function AvailabilityCalendar() {
                 key={v.key}
                 onClick={() => setView(v.key)}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium uppercase tracking-wide transition-colors",
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors",
                   view === v.key
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-muted",

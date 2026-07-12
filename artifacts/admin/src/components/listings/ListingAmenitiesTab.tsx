@@ -71,7 +71,7 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["listing-amenities", listing.id] }),
     onError: (err: Error) =>
-      toast({ variant: "destructive", title: "Could not update amenity", description: err.message }),
+      toast({ variant: "destructive", title: "Không thể cập nhật tiện nghi", description: err.message }),
   });
 
   const createAmenityMutation = useMutation({
@@ -85,12 +85,12 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
       return data as Amenity;
     },
     onSuccess: (a) => {
-      toast({ title: `Added "${a.name}"` });
+      toast({ title: `Đã thêm "${a.name}"` });
       setNewAmenity("");
       queryClient.invalidateQueries({ queryKey: ["amenities"] });
     },
     onError: (err: Error) =>
-      toast({ variant: "destructive", title: "Could not add amenity", description: err.message }),
+      toast({ variant: "destructive", title: "Không thể thêm tiện nghi", description: err.message }),
   });
 
   const isLoading = amenitiesQuery.isLoading || linkedQuery.isLoading;
@@ -102,7 +102,7 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
         {canManage && (
           <div className="mb-6 flex flex-col gap-2 sm:flex-row">
             <Input
-              placeholder="Add a new amenity (e.g. Espresso machine)"
+              placeholder="Thêm tiện nghi mới (VD: Máy pha cà phê)"
               value={newAmenity}
               onChange={(e) => setNewAmenity(e.target.value)}
               className="flex-1"
@@ -116,14 +116,14 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
               ) : (
                 <Plus className="mr-2 h-4 w-4" />
               )}
-              Add amenity
+              Thêm tiện nghi
             </Button>
           </div>
         )}
 
         {error ? (
           <Alert variant="destructive">
-            <AlertTitle>Could not load amenities</AlertTitle>
+            <AlertTitle>Không tải được tiện nghi</AlertTitle>
             <AlertDescription>{(error as Error).message}</AlertDescription>
           </Alert>
         ) : isLoading ? (
@@ -135,9 +135,9 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
         ) : !amenitiesQuery.data || amenitiesQuery.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center">
             <Sparkles className="mb-3 h-8 w-8 text-muted-foreground" />
-            <p className="font-medium">No amenities defined</p>
+            <p className="font-medium">Chưa có tiện nghi nào</p>
             <p className="text-sm text-muted-foreground">
-              {canManage ? "Add the first amenity above." : "Ask a manager to add amenities."}
+              {canManage ? "Thêm tiện nghi đầu tiên ở trên." : "Liên hệ quản lý để thêm tiện nghi."}
             </p>
           </div>
         ) : (

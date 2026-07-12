@@ -64,7 +64,7 @@ export function AppLayout({ children, title, action }: AppLayoutProps) {
                       }`}
                     >
                       {isActive && (
-                        <span className="absolute inset-y-1 left-0 w-[3px] rounded-r-full bg-brand-lime" />
+                        <span className="absolute inset-y-1 left-0 w-[3px] rounded-r-full bg-primary" />
                       )}
                       <item.icon
                         className={`h-4 w-4 shrink-0 ${isActive ? "text-foreground" : "text-muted-foreground"}`}
@@ -130,7 +130,7 @@ export function AppLayout({ children, title, action }: AppLayoutProps) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-muted p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto bg-mesh-genz p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
       </div>

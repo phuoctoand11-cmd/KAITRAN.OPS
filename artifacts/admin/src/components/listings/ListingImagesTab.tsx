@@ -361,13 +361,13 @@ export function ListingImagesTab({ listing, canManage }: Props) {
                           key={img.id}
                           className="group relative aspect-square overflow-hidden rounded-md border bg-muted"
                         >
-                          <img src={img.url} alt="Listing" className="h-full w-full object-cover" />
+                          <img src={img.url} alt="Bài đăng" className="h-full w-full object-cover" />
 
                           {isCover && (
                             <div className="absolute bottom-2 left-2">
                               <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-500 shadow-sm">
                                 <Star className="h-3 w-3 fill-current" />
-                                Cover
+                                Ảnh bìa
                               </Badge>
                             </div>
                           )}
@@ -397,7 +397,7 @@ export function ListingImagesTab({ listing, canManage }: Props) {
                                   ) : (
                                     <Star className="h-3 w-3" />
                                   )}
-                                  Set as cover
+                                  Đặt làm ảnh bìa
                                 </button>
                               )}
 

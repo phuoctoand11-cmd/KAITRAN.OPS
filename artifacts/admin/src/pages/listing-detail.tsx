@@ -21,6 +21,12 @@ import { ListingCalendarTab } from "@/components/listings/ListingCalendarTab";
 const LISTING_SELECT =
   "id,title,description,address,city,country,bedrooms,bathrooms,max_guests,status,cover_image_url,created_at,updated_at";
 
+const STATUS_LABELS: Record<Listing["status"], string> = {
+  active: "Hoạt động",
+  inactive: "Không hoạt động",
+  maintenance: "Bảo trì",
+};
+
 export default function ListingDetail() {
   const [, params] = useRoute("/listings/:id");
   const id = params?.id;
@@ -56,36 +62,36 @@ export default function ListingDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listing", id] });
       queryClient.invalidateQueries({ queryKey: ["listings"] });
-      toast({ title: "Listing updated" });
+      toast({ title: "Đã cập nhật bài đăng" });
     },
     onError: (err: Error) =>
       toast({
         variant: "destructive",
-        title: "Update failed",
+        title: "Cập nhật thất bại",
         description: err.message,
       }),
   });
 
   const subtitle = useMemo(() => {
     if (!listing) return "";
-    return [listing.city, listing.country].filter(Boolean).join(", ") || "Location not set";
+    return [listing.city, listing.country].filter(Boolean).join(", ") || "Chưa có vị trí";
   }, [listing]);
 
   return (
     <AppLayout
-      title={listing?.title ?? "Listing"}
+      title={listing?.title ?? "Bài đăng"}
       action={
         <Button variant="ghost" asChild>
           <Link href="/listings">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            All listings
+            Tất cả bài đăng
           </Link>
         </Button>
       }
     >
       {error ? (
         <Alert variant="destructive">
-          <AlertTitle>Could not load listing</AlertTitle>
+          <AlertTitle>Không tải được bài đăng</AlertTitle>
           <AlertDescription>{(error as Error).message}</AlertDescription>
         </Alert>
       ) : isLoading || !listing ? (
@@ -107,7 +113,7 @@ export default function ListingDetail() {
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                    No image
+                    Chưa có ảnh
                   </div>
                 )}
               </div>
@@ -120,17 +126,17 @@ export default function ListingDetail() {
                       {subtitle}
                     </div>
                   </div>
-                  <Badge className="capitalize" variant={listing.status === "active" ? "default" : "secondary"}>
-                    {listing.status}
+                  <Badge variant={listing.status === "active" ? "default" : "secondary"}>
+                    {STATUS_LABELS[listing.status]}
                   </Badge>
                 </div>
                 <p className="mb-4 text-sm text-muted-foreground">
-                  {listing.description ?? "No description yet."}
+                  {listing.description ?? "Chưa có mô tả."}
                 </p>
                 <div className="grid grid-cols-3 gap-4 text-sm">
-                  <Stat label="Bedrooms" value={listing.bedrooms} />
-                  <Stat label="Bathrooms" value={listing.bathrooms} />
-                  <Stat label="Max guests" value={listing.max_guests} />
+                  <Stat label="Phòng ngủ" value={listing.bedrooms} />
+                  <Stat label="Phòng tắm" value={listing.bathrooms} />
+                  <Stat label="Số khách tối đa" value={listing.max_guests} />
                 </div>
               </CardContent>
             </div>
@@ -138,10 +144,10 @@ export default function ListingDetail() {
 
           <Tabs defaultValue="overview">
             <TabsList className="mb-4 flex flex-wrap">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="images">Images</TabsTrigger>
-              <TabsTrigger value="amenities">Amenities</TabsTrigger>
-              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+              <TabsTrigger value="images">Hình ảnh</TabsTrigger>
+              <TabsTrigger value="amenities">Tiện nghi</TabsTrigger>
+              <TabsTrigger value="calendar">Lịch</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -166,7 +172,7 @@ export default function ListingDetail() {
           {updateMutation.isPending && (
             <div className="pointer-events-none fixed bottom-4 right-4 flex items-center gap-2 rounded-md bg-card px-3 py-2 text-sm shadow-md">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Saving…
+              Đang lưu…
             </div>
           )}
         </>

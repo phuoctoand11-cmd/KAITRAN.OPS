@@ -62,14 +62,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-mesh-genz p-4">
       <div className="w-full max-w-md">
         {/* Logo + headline */}
         <div className="flex flex-col items-center mb-10">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-foreground text-background shadow-md mb-5">
             <Building2 className="h-8 w-8" />
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-normal tracking-tighter text-foreground">
             {t.login.title}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">{t.login.subtitle}</p>

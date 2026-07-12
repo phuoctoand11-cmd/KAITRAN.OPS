@@ -33,7 +33,7 @@ import {
 import type { Listing } from "@/lib/supabase";
 
 const schema = z.object({
-  title: z.string().min(2, "Title is required"),
+  title: z.string().min(2, "Vui lòng nhập tiêu đề"),
   description: z.string().optional(),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -96,10 +96,10 @@ export function ListingFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{initial?.id ? "Edit listing" : "New listing"}</DialogTitle>
+          <DialogTitle>{initial?.id ? "Sửa bài đăng" : "Bài đăng mới"}</DialogTitle>
           <DialogDescription>
-            Set the basics for this property. You can manage images, amenities and calendar
-            from the listing detail page.
+            Điền thông tin cơ bản của bài đăng. Bạn có thể quản lý hình ảnh, tiện nghi và lịch
+            từ trang chi tiết bài đăng.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -117,9 +117,9 @@ export function ListingFormDialog({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Tiêu đề</FormLabel>
                   <FormControl>
-                    <Input placeholder="Sunset Loft Downtown" {...field} />
+                    <Input placeholder="Villa Sunset Loft" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -131,9 +131,9 @@ export function ListingFormDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Mô tả</FormLabel>
                   <FormControl>
-                    <Textarea rows={3} placeholder="Bright loft with skyline views" {...field} />
+                    <Textarea rows={3} placeholder="Villa view thành phố, ánh sáng tự nhiên" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,7 +146,7 @@ export function ListingFormDialog({
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address</FormLabel>
+                    <FormLabel>Địa chỉ</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -159,7 +159,7 @@ export function ListingFormDialog({
                 name="city"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>City</FormLabel>
+                    <FormLabel>Thành phố</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -172,7 +172,7 @@ export function ListingFormDialog({
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>Quốc gia</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -188,7 +188,7 @@ export function ListingFormDialog({
                 name="bedrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bedrooms</FormLabel>
+                    <FormLabel>Phòng ngủ</FormLabel>
                     <FormControl>
                       <Input type="number" min={0} {...field} />
                     </FormControl>
@@ -201,7 +201,7 @@ export function ListingFormDialog({
                 name="bathrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bathrooms</FormLabel>
+                    <FormLabel>Phòng tắm</FormLabel>
                     <FormControl>
                       <Input type="number" min={0} {...field} />
                     </FormControl>
@@ -214,7 +214,7 @@ export function ListingFormDialog({
                 name="max_guests"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Max guests</FormLabel>
+                    <FormLabel>Số khách tối đa</FormLabel>
                     <FormControl>
                       <Input type="number" min={1} {...field} />
                     </FormControl>
@@ -229,7 +229,7 @@ export function ListingFormDialog({
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>Trạng thái</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="sm:w-[220px]">
@@ -237,9 +237,9 @@ export function ListingFormDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="maintenance">Maintenance</SelectItem>
+                      <SelectItem value="active">Hoạt động</SelectItem>
+                      <SelectItem value="inactive">Không hoạt động</SelectItem>
+                      <SelectItem value="maintenance">Bảo trì</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -249,11 +249,11 @@ export function ListingFormDialog({
 
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                Cancel
+                Hủy
               </Button>
               <Button type="submit" disabled={submitting}>
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {initial?.id ? "Save changes" : "Create listing"}
+                {initial?.id ? "Lưu thay đổi" : "Tạo bài đăng"}
               </Button>
             </DialogFooter>
           </form>

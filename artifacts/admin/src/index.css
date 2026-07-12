@@ -49,92 +49,85 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
 
-  /* Sentry-inspired brand accents — used sparingly (nav indicator, signature highlight) */
-  --color-brand-lime: #c2ef4e;
-  --color-brand-pink: #fa7faa;
-  --color-brand-violet: #6a5fc1;
-  --color-brand-violet-deep: #422082;
-
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
-  /* Sentry radius scale */
-  --radius-sm: 0.25rem;              /* 4px  — badges, pills, highlight chips */
-  --radius-md: var(--radius);        /* 8px  — buttons, inputs, select */
-  --radius-lg: 0.625rem;             /* 10px — generic containers */
-  --radius-xl: 0.75rem;              /* 12px — cards */
+  /* Cursor radius scale */
+  --radius-sm: 0.25rem;              /* 4px  — inline tags */
+  --radius-md: var(--radius);        /* 8px  — buttons, inputs */
+  --radius-lg: 0.75rem;              /* 12px — cards, IDE panes */
+  --radius-xl: 0.75rem;              /* 12px — cards (shared with lg) */
 }
 
 /*
-  Sentry-inspired Design System
-  Canvas: #ffffff  · Ink: #1f1633  · Muted: violet-gray
-  Hairline: #e5e7eb (cards) / #cfcfdb (inputs)
-  Primary: #150f23 (near-black violet)  · Accent: lime #c2ef4e, pink #fa7faa
+  Cursor-inspired Design System
+  Canvas: #f7f7f4 (warm cream)  · Ink: #26251e (warm near-black)
+  Hairline: #e6e5e0  · Primary: Cursor Orange #f54e00 (used scarcely)
+  Depth: hairline-only, no drop shadows.
 */
 
 :root {
-  /* White canvas (transactional/light surface per source system) */
-  --background:           0     0% 100%;   /* #ffffff */
-  --foreground:         259    40%  14%;   /* #1f1633 — ink */
+  /* Warm cream canvas */
+  --background:           60    15% 96%;   /* #f7f7f4 */
+  --foreground:            53   12% 13%;   /* #26251e — ink */
 
-  /* Hairline border — #e5e7eb */
-  --border:              220    13%  91%;
-  --input:               240    14%  84%;  /* #cfcfdb — form field border */
-  --ring:                217    91%  60%;  /* focus ring #3b82f6 */
+  /* Hairline border — #e6e5e0 */
+  --border:                50   11% 89%;
+  --input:                 50   11% 89%;
+  --ring:                  19  100% 48%;   /* Cursor Orange focus ring */
 
-  /* Card — white surface with hairline border */
-  --card:                  0     0% 100%;
-  --card-foreground:    259    40%  14%;
-  --card-border:         220    13%  91%;
+  /* Card — pure white, slight contrast against cream canvas */
+  --card:                   0    0% 100%;
+  --card-foreground:       53   12% 13%;
+  --card-border:           50   11% 89%;
 
   /* Popover — white + hairline */
-  --popover:               0     0% 100%;
-  --popover-foreground: 259    40%  14%;
-  --popover-border:      220    13%  91%;
+  --popover:                0    0% 100%;
+  --popover-foreground:    53   12% 13%;
+  --popover-border:        50   11% 89%;
 
-  /* Primary — near-black violet #150f23 */
-  --primary:             258    40%  10%;
-  --primary-foreground:   0     0% 100%;   /* on-primary = white */
+  /* Primary — Cursor Orange #f54e00 */
+  --primary:               19  100% 48%;
+  --primary-foreground:     0    0% 100%;
 
-  /* Secondary — soft violet-tinted surface */
-  --secondary:           258    20%  96%;
-  --secondary-foreground: 259   40%  14%;
+  /* Secondary — surface-strong #e6e5e0 */
+  --secondary:              50   11% 89%;
+  --secondary-foreground:  53   12% 13%;
 
-  /* Muted — soft violet-tinted surface */
-  --muted:               258    20%  96%;
-  --muted-foreground:    259    15%  40%;
+  /* Muted — canvas-soft #fafaf7 */
+  --muted:                 60   23% 97%;
+  --muted-foreground:      45    5% 34%;   /* body #5a5852 */
 
-  /* Accent — subtle violet hover surface (lime is reserved for signature highlights, not generic hover states) */
-  --accent:              258    25%  93%;
-  --accent-foreground:   259    40%  14%;
+  /* Accent — subtle hairline-tinted hover surface */
+  --accent:                50   11% 89%;
+  --accent-foreground:     53   12% 13%;
 
-  /* Destructive */
-  --destructive:         350    78%  56%;
+  /* Destructive — semantic-error #cf2d56 */
+  --destructive:          345   64% 49%;
   --destructive-foreground: 0    0% 100%;
 
-  /* Sidebar — white, hairline borders */
-  --sidebar:               0     0% 100%;
-  --sidebar-foreground:  259    40%  14%;
-  --sidebar-border:      220    13%  91%;
-  --sidebar-primary:     258    40%  10%;
+  /* Sidebar — white card against cream canvas, hairline borders */
+  --sidebar:                0    0% 100%;
+  --sidebar-foreground:    53   12% 13%;
+  --sidebar-border:        50   11% 89%;
+  --sidebar-primary:       19  100% 48%;
   --sidebar-primary-foreground: 0  0% 100%;
-  --sidebar-accent:      258    25%  93%;
-  --sidebar-accent-foreground:  259 40% 14%;
-  --sidebar-ring:        217    91%  60%;
+  --sidebar-accent:        50   11% 89%;
+  --sidebar-accent-foreground:  53 12% 13%;
+  --sidebar-ring:          19  100% 48%;
 
-  /* Charts — violet/lime/pink family */
-  --chart-1:             258    40%  10%;   /* primary violet */
-  --chart-2:              77    83%  62%;   /* lime            #c2ef4e */
-  --chart-3:             339    92%  74%;   /* pink            #fa7faa */
-  --chart-4:             261    61%  32%;   /* violet-deep     #422082 */
-  --chart-5:             259    15%  40%;   /* muted violet    */
+  /* Charts — orange-led neutral family (timeline pastels are scoped to in-product agent UI only, not used here) */
+  --chart-1:               19  100% 48%;   /* Cursor Orange */
+  --chart-2:               45    5% 34%;   /* body           */
+  --chart-3:              345   64% 49%;   /* error/red      */
+  --chart-4:               47    6% 47%;   /* muted          */
+  --chart-5:               53   12% 13%;   /* ink            */
 
-  /* Font: Rubik for UI, Monaco for code (per source design system) */
-  --app-font-sans: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                   'Helvetica Neue', Arial, sans-serif;
+  /* Font: Inter as CursorGothic substitute, JetBrains Mono for code surfaces */
+  --app-font-sans: 'Inter', system-ui, -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --app-font-serif: Georgia, serif;
-  --app-font-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  --app-font-mono: 'JetBrains Mono', 'Fira Code', Menlo, monospace;
 
   /* Base radius: 8px */
   --radius: 0.5rem;
@@ -148,9 +141,22 @@
     @apply font-sans antialiased bg-background text-foreground;
     font-weight: 400;
   }
+  /* Editorial voice: display headings stay at weight 400, never bold */
   h1, h2, h3, h4 {
     font-weight: 600;
     letter-spacing: 0;
     text-transform: none;
+  }
+
+  /* Gen-Z pastel mesh canvas — soft 4-corner glow using the timeline pastel
+     family (peach / sky / lavender / mint). White cards stay crisp on top. */
+  .bg-mesh-genz {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(at 0% 0%, rgba(223, 168, 143, 0.35) 0px, transparent 55%),
+      radial-gradient(at 100% 0%, rgba(159, 187, 224, 0.32) 0px, transparent 55%),
+      radial-gradient(at 100% 100%, rgba(192, 168, 221, 0.30) 0px, transparent 55%),
+      radial-gradient(at 0% 100%, rgba(159, 201, 162, 0.30) 0px, transparent 55%);
+    background-attachment: fixed;
   }
 }
