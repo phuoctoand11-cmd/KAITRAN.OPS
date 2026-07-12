@@ -4,8 +4,8 @@
   "icons": [
     { "src": "/app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
-  "theme_color": "#ED2A2A",
-  "background_color": "#ED2A2A",
+  "theme_color": "#150f23",
+  "background_color": "#ffffff",
   "display": "standalone",
   "start_url": "/"
 }

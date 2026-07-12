@@ -268,7 +268,7 @@ export default function AvailabilityCalendar() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {/* View switcher */}
-          <div className="flex overflow-hidden rounded-lg border border-[#dddddd] bg-white p-0.5">
+          <div className="flex overflow-hidden rounded-lg border border-border bg-card p-0.5">
             {(
               [
                 { key: "timeline" as const, label: "Timeline", icon: StretchHorizontal },
@@ -280,8 +280,10 @@ export default function AvailabilityCalendar() {
                 key={v.key}
                 onClick={() => setView(v.key)}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors",
-                  view === v.key ? "bg-[#ff385c] text-white" : "text-[#6a6a6a] hover:bg-[#f7f7f7]",
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium uppercase tracking-wide transition-colors",
+                  view === v.key
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted",
                 )}
               >
                 <v.icon className="h-3.5 w-3.5" />

@@ -49,88 +49,94 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
 
+  /* Sentry-inspired brand accents — used sparingly (nav indicator, signature highlight) */
+  --color-brand-lime: #c2ef4e;
+  --color-brand-pink: #fa7faa;
+  --color-brand-violet: #6a5fc1;
+  --color-brand-violet-deep: #422082;
+
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
-  /* Airbnb radius scale — soft rounded */
-  --radius-sm: calc(var(--radius) - 4px);   /* 4px  */
-  --radius-md: var(--radius);               /* 8px  */
-  --radius-lg: calc(var(--radius) + 6px);   /* 14px — property card */
-  --radius-xl: calc(var(--radius) + 12px);  /* 20px */
+  /* Sentry radius scale */
+  --radius-sm: 0.25rem;              /* 4px  — badges, pills, highlight chips */
+  --radius-md: var(--radius);        /* 8px  — buttons, inputs, select */
+  --radius-lg: 0.625rem;             /* 10px — generic containers */
+  --radius-xl: 0.75rem;              /* 12px — cards */
 }
 
 /*
-  Airbnb Design System
-  Canvas: #ffffff  · Ink: #222222  · Body: #3f3f3f  · Muted: #6a6a6a
-  Hairline: #dddddd  · Surface-soft: #f7f7f7  · Surface-strong: #f2f2f2
-  Rausch: #ff385c  · Rausch-active: #e00b41  · On-primary: #ffffff
+  Sentry-inspired Design System
+  Canvas: #ffffff  · Ink: #1f1633  · Muted: violet-gray
+  Hairline: #e5e7eb (cards) / #cfcfdb (inputs)
+  Primary: #150f23 (near-black violet)  · Accent: lime #c2ef4e, pink #fa7faa
 */
 
 :root {
-  /* White canvas */
-  --background:           0   0% 100%;   /* #ffffff */
-  --foreground:           0   0%  13%;   /* #222222 — ink */
+  /* White canvas (transactional/light surface per source system) */
+  --background:           0     0% 100%;   /* #ffffff */
+  --foreground:         259    40%  14%;   /* #1f1633 — ink */
 
-  /* Hairline border — #dddddd */
-  --border:               0   0%  87%;
-  --input:                0   0% 100%;
-  --ring:               349 100%  60%;   /* Rausch #ff385c */
+  /* Hairline border — #e5e7eb */
+  --border:              220    13%  91%;
+  --input:               240    14%  84%;  /* #cfcfdb — form field border */
+  --ring:                217    91%  60%;  /* focus ring #3b82f6 */
 
   /* Card — white surface with hairline border */
-  --card:                 0   0% 100%;
-  --card-foreground:      0   0%  13%;
-  --card-border:          0   0%  87%;   /* hairline #dddddd */
+  --card:                  0     0% 100%;
+  --card-foreground:    259    40%  14%;
+  --card-border:         220    13%  91%;
 
-  /* Popover — white + one shadow tier */
-  --popover:              0   0% 100%;
-  --popover-foreground:   0   0%  13%;
-  --popover-border:       0   0%  87%;
+  /* Popover — white + hairline */
+  --popover:               0     0% 100%;
+  --popover-foreground: 259    40%  14%;
+  --popover-border:      220    13%  91%;
 
-  /* Primary — Rausch #ff385c */
-  --primary:            349 100%  60%;
-  --primary-foreground:   0   0% 100%;   /* on-primary = white */
+  /* Primary — near-black violet #150f23 */
+  --primary:             258    40%  10%;
+  --primary-foreground:   0     0% 100%;   /* on-primary = white */
 
-  /* Secondary — surface-strong #f2f2f2 */
-  --secondary:            0   0%  95%;
-  --secondary-foreground: 0   0%  13%;
+  /* Secondary — soft violet-tinted surface */
+  --secondary:           258    20%  96%;
+  --secondary-foreground: 259   40%  14%;
 
-  /* Muted — surface-soft #f7f7f7 */
-  --muted:                0   0%  97%;
-  --muted-foreground:     0   0%  42%;   /* muted #6a6a6a */
+  /* Muted — soft violet-tinted surface */
+  --muted:               258    20%  96%;
+  --muted-foreground:    259    15%  40%;
 
-  /* Accent — surface-strong hover */
-  --accent:               0   0%  95%;
-  --accent-foreground:    0   0%  13%;
+  /* Accent — subtle violet hover surface (lime is reserved for signature highlights, not generic hover states) */
+  --accent:              258    25%  93%;
+  --accent-foreground:   259    40%  14%;
 
-  /* Destructive — error text #c13515 */
-  --destructive:         14  77%  42%;
-  --destructive-foreground: 0 0% 100%;
+  /* Destructive */
+  --destructive:         350    78%  56%;
+  --destructive-foreground: 0    0% 100%;
 
   /* Sidebar — white, hairline borders */
-  --sidebar:              0   0% 100%;
-  --sidebar-foreground:   0   0%  13%;   /* ink */
-  --sidebar-border:       0   0%  87%;   /* hairline #dddddd */
-  --sidebar-primary:    349 100%  60%;   /* Rausch */
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent:       0   0%  97%;   /* surface-soft hover #f7f7f7 */
-  --sidebar-accent-foreground:  0 0%  13%;
-  --sidebar-ring:       349 100%  60%;
+  --sidebar:               0     0% 100%;
+  --sidebar-foreground:  259    40%  14%;
+  --sidebar-border:      220    13%  91%;
+  --sidebar-primary:     258    40%  10%;
+  --sidebar-primary-foreground: 0  0% 100%;
+  --sidebar-accent:      258    25%  93%;
+  --sidebar-accent-foreground:  259 40% 14%;
+  --sidebar-ring:        217    91%  60%;
 
-  /* Charts — Rausch-led palette */
-  --chart-1:            349 100%  60%;   /* Rausch         #ff385c */
-  --chart-2:            217 100%  63%;   /* legal blue     #428bff */
-  --chart-3:             14  77%  42%;   /* error/warm red #c13515 */
-  --chart-4:              0   0%  42%;   /* muted gray     #6a6a6a */
-  --chart-5:              0   0%  13%;   /* ink            #222222 */
+  /* Charts — violet/lime/pink family */
+  --chart-1:             258    40%  10%;   /* primary violet */
+  --chart-2:              77    83%  62%;   /* lime            #c2ef4e */
+  --chart-3:             339    92%  74%;   /* pink            #fa7faa */
+  --chart-4:             261    61%  32%;   /* violet-deep     #422082 */
+  --chart-5:             259    15%  40%;   /* muted violet    */
 
-  /* Font: Inter as Airbnb Cereal VF substitute */
-  --app-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-                   'Helvetica Neue', sans-serif;
+  /* Font: Rubik for UI, Monaco for code (per source design system) */
+  --app-font-sans: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                   'Helvetica Neue', Arial, sans-serif;
   --app-font-serif: Georgia, serif;
-  --app-font-mono: 'Menlo', 'Courier New', monospace;
+  --app-font-mono: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 
-  /* Base radius: 8px — Airbnb button/card soft corners */
+  /* Base radius: 8px */
   --radius: 0.5rem;
 }
 
@@ -141,9 +147,7 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-weight: 400;
-    color: #222222;
   }
-  /* Airbnb display: modest weights, sentence case (no forced uppercase) */
   h1, h2, h3, h4 {
     font-weight: 600;
     letter-spacing: 0;
