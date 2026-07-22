@@ -19,7 +19,7 @@ import { ListingAmenitiesTab } from "@/components/listings/ListingAmenitiesTab";
 import { ListingCalendarTab } from "@/components/listings/ListingCalendarTab";
 
 const LISTING_SELECT =
-  "id,title,description,address,city,country,bedrooms,bathrooms,max_guests,status,cover_image_url,created_at,updated_at";
+  "id,title,description,address,city,country,bedrooms,bathrooms,max_guests,status,cover_image_url,video_url,image_link_url,created_at,updated_at";
 
 const STATUS_LABELS: Record<Listing["status"], string> = {
   active: "Hoạt động",

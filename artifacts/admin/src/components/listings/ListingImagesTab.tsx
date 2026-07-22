@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImageIcon, Loader2, Star, Trash2, Upload, X, Plus } from "lucide-react";
+import { ImageIcon, Link2, Loader2, Star, Trash2, Upload, Video, X, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +44,16 @@ export function ListingImagesTab({ listing, canManage }: Props) {
   const queryClient = useQueryClient();
   const [newRoomName, setNewRoomName] = useState("");
   const [roomToDelete, setRoomToDelete] = useState<ListingRoom | null>(null);
+  const [imageLink, setImageLink] = useState(listing.image_link_url ?? "");
+  const [videoLink, setVideoLink] = useState(listing.video_url ?? "");
+
+  useEffect(() => {
+    setImageLink(listing.image_link_url ?? "");
+  }, [listing.image_link_url]);
+
+  useEffect(() => {
+    setVideoLink(listing.video_url ?? "");
+  }, [listing.video_url]);
   // undefined = not uploading; string = uploading for that roomId; null = uploading for uncategorized
   const [uploadingRoom, setUploadingRoom] = useState<string | null | undefined>(undefined);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -107,6 +117,40 @@ export function ListingImagesTab({ listing, canManage }: Props) {
     },
     onError: (err: Error) =>
       toast({ variant: "destructive", title: "Không thể xóa phòng", description: err.message }),
+  });
+
+  const saveImageLinkMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const { error } = await supabase
+        .from("listings")
+        .update({ image_link_url: url.trim() || null })
+        .eq("id", listing.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listing", listing.id] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      toast({ title: "Đã lưu link ảnh" });
+    },
+    onError: (err: Error) =>
+      toast({ variant: "destructive", title: "Không thể lưu link ảnh", description: err.message }),
+  });
+
+  const saveVideoLinkMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const { error } = await supabase
+        .from("listings")
+        .update({ video_url: url.trim() || null })
+        .eq("id", listing.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listing", listing.id] });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+      toast({ title: "Đã lưu link video" });
+    },
+    onError: (err: Error) =>
+      toast({ variant: "destructive", title: "Không thể lưu link video", description: err.message }),
   });
 
   const handleUpload = async (files: FileList | null, roomId: string | null) => {
@@ -229,6 +273,86 @@ export function ListingImagesTab({ listing, canManage }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Paste image / video links */}
+      {canManage && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Link ảnh &amp; video</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-sm font-medium">
+                <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                Dán link ảnh (Google Drive…)
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://drive.google.com/…"
+                  value={imageLink}
+                  onChange={(e) => setImageLink(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveImageLinkMutation.mutate(imageLink);
+                  }}
+                />
+                <Button
+                  onClick={() => saveImageLinkMutation.mutate(imageLink)}
+                  disabled={saveImageLinkMutation.isPending || imageLink === (listing.image_link_url ?? "")}
+                  size="sm"
+                >
+                  {saveImageLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                  Lưu
+                </Button>
+              </div>
+              {listing.image_link_url && (
+                <a
+                  href={listing.image_link_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block text-xs text-primary underline underline-offset-2"
+                >
+                  Mở link ảnh hiện tại
+                </a>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-1.5 text-sm font-medium">
+                <Video className="h-3.5 w-3.5 text-muted-foreground" />
+                Dán link video (Google Drive…)
+              </label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://drive.google.com/…"
+                  value={videoLink}
+                  onChange={(e) => setVideoLink(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveVideoLinkMutation.mutate(videoLink);
+                  }}
+                />
+                <Button
+                  onClick={() => saveVideoLinkMutation.mutate(videoLink)}
+                  disabled={saveVideoLinkMutation.isPending || videoLink === (listing.video_url ?? "")}
+                  size="sm"
+                >
+                  {saveVideoLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                  Lưu
+                </Button>
+              </div>
+              {listing.video_url && (
+                <a
+                  href={listing.video_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-block text-xs text-primary underline underline-offset-2"
+                >
+                  Mở video hiện tại
+                </a>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Room management */}
       {canManage && (
         <Card>

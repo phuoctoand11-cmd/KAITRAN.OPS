@@ -1,7 +1,7 @@
 {
-  "name": "Airbnb Operations Admin",
-  "short_name": "Airbnb Ops",
-  "description": "Quản lý vận hành Airbnb — đặt phòng, chi tiêu, báo cáo",
+  "name": "Kaitran Villas",
+  "short_name": "Kaitran Villas",
+  "description": "Quản lý bài đăng và lịch trống villa Kaitran",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

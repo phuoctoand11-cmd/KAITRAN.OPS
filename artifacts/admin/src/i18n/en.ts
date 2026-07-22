@@ -65,7 +65,7 @@ export const en = {
     allAssignees: "All assignees",
   },
   login: {
-    title: "Airbnb Ops",
+    title: "Kaitran Villas",
     subtitle: "Operations cockpit for property managers",
     loginTab: "Log In",
     registerTab: "Register",

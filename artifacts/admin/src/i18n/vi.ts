@@ -67,7 +67,7 @@ export const vi: Translations = {
     allAssignees: "Tất cả người phụ trách",
   },
   login: {
-    title: "Airbnb Ops",
+    title: "Kaitran Villas",
     subtitle: "Trung tâm vận hành cho quản lý bất động sản",
     loginTab: "Đăng nhập",
     registerTab: "Đăng ký",

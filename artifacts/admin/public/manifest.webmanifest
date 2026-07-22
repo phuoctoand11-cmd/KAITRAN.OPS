@@ -1,6 +1,6 @@
 {
-  "name": "Anvi Villa Ops",
-  "short_name": "Anvi Ops",
+  "name": "Kaitran Villas",
+  "short_name": "Kaitran Villas",
   "icons": [
     { "src": "/app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],

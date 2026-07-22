@@ -39,7 +39,7 @@ export function AppLayout({ children, title, action }: AppLayoutProps) {
             </div>
             <div>
               <div className="text-[15px] font-semibold text-foreground leading-tight">
-                Airbnb Ops
+                Kaitran Villas
               </div>
               <div className="text-[11px] text-muted-foreground leading-none mt-0.5">
                 {t.nav.operationsCockpit}

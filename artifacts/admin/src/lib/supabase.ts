@@ -103,6 +103,8 @@ export interface Listing {
   created_at: string;
   updated_at: string;
   airbnb_listing_name?: string | null;
+  video_url?: string | null;
+  image_link_url?: string | null;
 }
 
 export interface ListingRoom {
