@@ -140,22 +140,24 @@ export function ListingOverviewTab({ listing, canManage, onSave, saving }: Props
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="airbnb_listing_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tên trên Airbnb</FormLabel>
-                  <FormControl>
-                    <Input disabled={!canManage} {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <p className="text-xs text-muted-foreground">
-                    Dán đúng tên nhà như hiển thị trong file CSV Airbnb để khớp doanh thu khi import.
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {canManage && (
+              <FormField
+                control={form.control}
+                name="airbnb_listing_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tên trên Airbnb</FormLabel>
+                    <FormControl>
+                      <Input disabled={!canManage} {...field} value={field.value ?? ""} />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      Dán đúng tên nhà như hiển thị trong file CSV Airbnb để khớp doanh thu khi import.
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <div className="grid grid-cols-3 gap-4">
               <NumberField name="bedrooms" label="Phòng ngủ" form={form} disabled={!canManage} />
               <NumberField name="bathrooms" label="Phòng tắm" form={form} disabled={!canManage} />

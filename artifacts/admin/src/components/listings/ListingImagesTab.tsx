@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ImageIcon, Link2, Loader2, Star, Trash2, Upload, Video, X, Plus } from "lucide-react";
+import { Check, Copy, ImageIcon, Link2, Loader2, Star, Trash2, Upload, Video, X, Plus } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +46,15 @@ export function ListingImagesTab({ listing, canManage }: Props) {
   const [roomToDelete, setRoomToDelete] = useState<ListingRoom | null>(null);
   const [imageLink, setImageLink] = useState(listing.image_link_url ?? "");
   const [videoLink, setVideoLink] = useState(listing.video_url ?? "");
+  const [imageCopied, setImageCopied] = useState(false);
+  const [videoCopied, setVideoCopied] = useState(false);
+
+  const copyToClipboard = async (value: string, kind: "image" | "video") => {
+    await navigator.clipboard.writeText(value);
+    const setCopied = kind === "image" ? setImageCopied : setVideoCopied;
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   useEffect(() => {
     setImageLink(listing.image_link_url ?? "");
@@ -273,8 +282,8 @@ export function ListingImagesTab({ listing, canManage }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Paste image / video links */}
-      {canManage && (
+      {/* Paste image / video links — visible to guests read-only, editable by admin */}
+      {(canManage || listing.image_link_url || listing.video_url) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Link ảnh &amp; video</CardTitle>
@@ -283,71 +292,79 @@ export function ListingImagesTab({ listing, canManage }: Props) {
             <div className="space-y-1.5">
               <label className="flex items-center gap-1.5 text-sm font-medium">
                 <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                Dán link ảnh (Google Drive…)
+                Link ảnh (Google Drive…)
               </label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://drive.google.com/…"
-                  value={imageLink}
-                  onChange={(e) => setImageLink(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") saveImageLinkMutation.mutate(imageLink);
-                  }}
-                />
-                <Button
-                  onClick={() => saveImageLinkMutation.mutate(imageLink)}
-                  disabled={saveImageLinkMutation.isPending || imageLink === (listing.image_link_url ?? "")}
-                  size="sm"
-                >
-                  {saveImageLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                  Lưu
-                </Button>
-              </div>
-              {listing.image_link_url && (
-                <a
-                  href={listing.image_link_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block text-xs text-primary underline underline-offset-2"
-                >
-                  Mở link ảnh hiện tại
-                </a>
-              )}
+              {canManage ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://drive.google.com/…"
+                    value={imageLink}
+                    onChange={(e) => setImageLink(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveImageLinkMutation.mutate(imageLink);
+                    }}
+                  />
+                  <Button
+                    onClick={() => saveImageLinkMutation.mutate(imageLink)}
+                    disabled={saveImageLinkMutation.isPending || imageLink === (listing.image_link_url ?? "")}
+                    size="sm"
+                  >
+                    {saveImageLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                    Lưu
+                  </Button>
+                </div>
+              ) : listing.image_link_url ? (
+                <div className="flex gap-2">
+                  <Input readOnly value={listing.image_link_url} className="text-xs" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(listing.image_link_url!, "image")}
+                  >
+                    {imageCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-1.5">
               <label className="flex items-center gap-1.5 text-sm font-medium">
                 <Video className="h-3.5 w-3.5 text-muted-foreground" />
-                Dán link video (Google Drive…)
+                Link video (Google Drive…)
               </label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://drive.google.com/…"
-                  value={videoLink}
-                  onChange={(e) => setVideoLink(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") saveVideoLinkMutation.mutate(videoLink);
-                  }}
-                />
-                <Button
-                  onClick={() => saveVideoLinkMutation.mutate(videoLink)}
-                  disabled={saveVideoLinkMutation.isPending || videoLink === (listing.video_url ?? "")}
-                  size="sm"
-                >
-                  {saveVideoLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-                  Lưu
-                </Button>
-              </div>
-              {listing.video_url && (
-                <a
-                  href={listing.video_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-block text-xs text-primary underline underline-offset-2"
-                >
-                  Mở video hiện tại
-                </a>
-              )}
+              {canManage ? (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://drive.google.com/…"
+                    value={videoLink}
+                    onChange={(e) => setVideoLink(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") saveVideoLinkMutation.mutate(videoLink);
+                    }}
+                  />
+                  <Button
+                    onClick={() => saveVideoLinkMutation.mutate(videoLink)}
+                    disabled={saveVideoLinkMutation.isPending || videoLink === (listing.video_url ?? "")}
+                    size="sm"
+                  >
+                    {saveVideoLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                    Lưu
+                  </Button>
+                </div>
+              ) : listing.video_url ? (
+                <div className="flex gap-2">
+                  <Input readOnly value={listing.video_url} className="text-xs" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(listing.video_url!, "video")}
+                  >
+                    {videoCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </Button>
+                </div>
+              ) : null}
             </div>
           </CardContent>
         </Card>
