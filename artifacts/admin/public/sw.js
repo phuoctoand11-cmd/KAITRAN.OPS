@@ -1,5 +1,5 @@
-// Service Worker — Airbnb Operations Admin PWA
-const CACHE_NAME = "airbnb-ops-v1";
+// Service Worker — KaiConnect-Villa PWA
+const CACHE_NAME = "kaiconnect-villa-v1";
 
 // Static assets to pre-cache on install
 const PRECACHE_URLS = [
