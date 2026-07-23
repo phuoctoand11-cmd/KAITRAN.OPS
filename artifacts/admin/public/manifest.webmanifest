@@ -1,6 +1,6 @@
 {
-  "name": "Kaitran Villas",
-  "short_name": "Kaitran Villas",
+  "name": "KaiConnect-Villa",
+  "short_name": "KaiConnect-Villa",
   "icons": [
     { "src": "/app-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],

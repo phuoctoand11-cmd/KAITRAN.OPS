@@ -1,7 +1,7 @@
 {
-  "name": "Kaitran Villas",
-  "short_name": "Kaitran Villas",
-  "description": "Quản lý bài đăng và lịch trống villa Kaitran",
+  "name": "KaiConnect-Villa",
+  "short_name": "KaiConnect-Villa",
+  "description": "Quản lý bài đăng và lịch trống villa KaiConnect",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -65,7 +65,7 @@ export const en = {
     allAssignees: "All assignees",
   },
   login: {
-    title: "Kaitran Villas",
+    title: "KaiConnect-Villa",
     subtitle: "Operations cockpit for property managers",
     loginTab: "Log In",
     registerTab: "Register",
