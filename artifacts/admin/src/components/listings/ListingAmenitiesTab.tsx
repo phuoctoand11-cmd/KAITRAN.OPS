@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus, Sparkles } from "lucide-react";
+import { Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,6 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, type Amenity, type Listing } from "@/lib/supabase";
 
@@ -20,6 +30,7 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [newAmenity, setNewAmenity] = useState("");
+  const [amenityToDelete, setAmenityToDelete] = useState<Amenity | null>(null);
 
   const amenitiesQuery = useQuery({
     queryKey: ["amenities"],
@@ -93,6 +104,26 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
       toast({ variant: "destructive", title: "Không thể thêm tiện nghi", description: err.message }),
   });
 
+  const deleteAmenityMutation = useMutation({
+    mutationFn: async (amenity: Amenity) => {
+      const { error: linkErr } = await supabase
+        .from("listing_amenities")
+        .delete()
+        .eq("amenity_id", amenity.id);
+      if (linkErr) throw linkErr;
+      const { error } = await supabase.from("amenities").delete().eq("id", amenity.id);
+      if (error) throw error;
+    },
+    onSuccess: (_, amenity) => {
+      setAmenityToDelete(null);
+      toast({ title: `Đã xóa "${amenity.name}"` });
+      queryClient.invalidateQueries({ queryKey: ["amenities"] });
+      queryClient.invalidateQueries({ queryKey: ["listing-amenities"] });
+    },
+    onError: (err: Error) =>
+      toast({ variant: "destructive", title: "Không thể xóa tiện nghi", description: err.message }),
+  });
+
   const isLoading = amenitiesQuery.isLoading || linkedQuery.isLoading;
   const error = amenitiesQuery.error || linkedQuery.error;
 
@@ -151,19 +182,31 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
                   {items.map((a) => {
                     const checked = linkedQuery.data?.has(a.id) ?? false;
                     return (
-                      <label
+                      <div
                         key={a.id}
-                        className="flex cursor-pointer items-center gap-3 rounded-md border bg-card px-3 py-2 hover-elevate"
+                        className="flex items-center gap-3 rounded-md border bg-card px-3 py-2 hover-elevate"
                       >
-                        <Checkbox
-                          checked={checked}
-                          disabled={!canManage || toggleMutation.isPending}
-                          onCheckedChange={(v) =>
-                            toggleMutation.mutate({ amenityId: a.id, on: !!v })
-                          }
-                        />
-                        <span className="text-sm">{a.name}</span>
-                      </label>
+                        <label className="flex flex-1 cursor-pointer items-center gap-3">
+                          <Checkbox
+                            checked={checked}
+                            disabled={!canManage || toggleMutation.isPending}
+                            onCheckedChange={(v) =>
+                              toggleMutation.mutate({ amenityId: a.id, on: !!v })
+                            }
+                          />
+                          <span className="text-sm">{a.name}</span>
+                        </label>
+                        {canManage && (
+                          <button
+                            type="button"
+                            onClick={() => setAmenityToDelete(a)}
+                            className="shrink-0 rounded-md p-1 text-muted-foreground hover:text-destructive"
+                            aria-label={`Xóa tiện nghi ${a.name}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -172,6 +215,27 @@ export function ListingAmenitiesTab({ listing, canManage }: Props) {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={!!amenityToDelete} onOpenChange={(o) => !o && setAmenityToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa tiện nghi "{amenityToDelete?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tiện nghi này sẽ bị xóa khỏi danh sách chung và khỏi tất cả bài đăng đang dùng nó, không chỉ bài đăng hiện tại. Không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => amenityToDelete && deleteAmenityMutation.mutate(amenityToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteAmenityMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Xóa tiện nghi
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
