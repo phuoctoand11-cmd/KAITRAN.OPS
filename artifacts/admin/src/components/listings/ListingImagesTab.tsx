@@ -497,27 +497,44 @@ export function ListingImagesTab({ listing, canManage }: Props) {
                       const isCover = img.position === 0;
                       const isSettingCover =
                         setCoverMutation.isPending && setCoverMutation.variables?.id === img.id;
+                      const canPickCover = canManage && !isCover;
                       return (
                         <div
                           key={img.id}
-                          className="group relative aspect-square overflow-hidden rounded-md border bg-muted"
+                          onClick={() => canPickCover && setCoverMutation.mutate(img)}
+                          className={`group relative aspect-square overflow-hidden rounded-md border bg-muted ${
+                            canPickCover ? "cursor-pointer" : ""
+                          } ${isCover ? "ring-2 ring-amber-500" : ""}`}
+                          title={canPickCover ? "Nhấp để đặt làm ảnh bìa" : undefined}
                         >
                           <img src={img.url} alt="Bài đăng" className="h-full w-full object-cover" />
 
-                          {isCover && (
+                          {isCover ? (
                             <div className="absolute bottom-2 left-2">
                               <Badge className="gap-1 bg-amber-500 text-white hover:bg-amber-500 shadow-sm">
                                 <Star className="h-3 w-3 fill-current" />
                                 Ảnh bìa
                               </Badge>
                             </div>
-                          )}
+                          ) : canManage ? (
+                            <div className="absolute bottom-2 left-2 inline-flex h-7 items-center gap-1 rounded-md bg-background/90 px-2 text-xs font-medium shadow-sm">
+                              {isSettingCover ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Star className="h-3 w-3" />
+                              )}
+                              Đặt làm ảnh bìa
+                            </div>
+                          ) : null}
 
                           {canManage && (
                             <>
                               <button
                                 type="button"
-                                onClick={() => removeMutation.mutate(img)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeMutation.mutate(img);
+                                }}
                                 disabled={removeMutation.isPending || setCoverMutation.isPending}
                                 className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-background/90 text-destructive opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 disabled:opacity-50"
                                 aria-label="Xóa ảnh"
@@ -525,24 +542,10 @@ export function ListingImagesTab({ listing, canManage }: Props) {
                                 <Trash2 className="h-4 w-4" />
                               </button>
 
-                              {!isCover && (
-                                <button
-                                  type="button"
-                                  onClick={() => setCoverMutation.mutate(img)}
-                                  disabled={setCoverMutation.isPending || removeMutation.isPending}
-                                  className="absolute bottom-2 left-2 inline-flex h-7 items-center gap-1 rounded-md bg-background/90 px-2 text-xs font-medium opacity-0 shadow-sm transition-opacity hover:bg-background group-hover:opacity-100 disabled:opacity-50"
-                                  aria-label="Đặt làm ảnh bìa"
-                                >
-                                  {isSettingCover ? (
-                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                  ) : (
-                                    <Star className="h-3 w-3" />
-                                  )}
-                                  Đặt làm ảnh bìa
-                                </button>
-                              )}
-
-                              <div className="absolute bottom-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
+                              <div
+                                onClick={(e) => e.stopPropagation()}
+                                className="absolute bottom-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
+                              >
                                 <Select
                                   value={img.room_id ?? "__null__"}
                                   onValueChange={(val) =>

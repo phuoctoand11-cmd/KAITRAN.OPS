@@ -108,9 +108,7 @@ function sourceOf(entry: ListingCalendar | undefined): string {
   return "manual";
 }
 
-function cellLabel(entry: ListingCalendar | undefined, status: ListingCalStatus): string {
-  const src = sourceOf(entry);
-  if (src !== "manual") return PLATFORM_LABEL[src] ?? src;
+function cellLabel(_entry: ListingCalendar | undefined, status: ListingCalStatus): string {
   return LISTING_CAL_STATUS_LABELS[status];
 }
 

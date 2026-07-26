@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useRoute } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, MapPin, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Loader2, ImagePlus } from "lucide-react";
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { ListingOverviewTab } from "@/components/listings/ListingOverviewTab";
 import { ListingImagesTab } from "@/components/listings/ListingImagesTab";
 import { ListingAmenitiesTab } from "@/components/listings/ListingAmenitiesTab";
 import { ListingCalendarTab } from "@/components/listings/ListingCalendarTab";
+import { CoverImagePicker } from "@/components/listings/CoverImagePicker";
 
 const LISTING_SELECT =
   "id,title,description,address,city,country,bedrooms,bathrooms,max_guests,status,cover_image_url,video_url,image_link_url,created_at,updated_at";
@@ -33,6 +34,7 @@ export default function ListingDetail() {
   const { canManage } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [coverPickerOpen, setCoverPickerOpen] = useState(false);
 
   const { data: listing, isLoading, error } = useQuery({
     enabled: !!id,
@@ -104,7 +106,12 @@ export default function ListingDetail() {
         <>
           <Card className="mb-6 overflow-hidden">
             <div className="grid gap-0 sm:grid-cols-[280px_1fr]">
-              <div className="aspect-video bg-muted sm:aspect-auto sm:h-full">
+              <div
+                onClick={() => canManage && setCoverPickerOpen(true)}
+                className={`group relative aspect-video bg-muted sm:aspect-auto sm:h-full ${
+                  canManage ? "cursor-pointer" : ""
+                }`}
+              >
                 {listing.cover_image_url ? (
                   <img
                     src={listing.cover_image_url}
@@ -114,6 +121,12 @@ export default function ListingDetail() {
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     Chưa có ảnh
+                  </div>
+                )}
+                {canManage && (
+                  <div className="absolute inset-0 flex items-center justify-center gap-1.5 bg-black/0 text-transparent transition-colors group-hover:bg-black/40 group-hover:text-white">
+                    <ImagePlus className="h-4 w-4" />
+                    <span className="text-sm font-medium">Đổi ảnh bìa</span>
                   </div>
                 )}
               </div>
@@ -174,6 +187,14 @@ export default function ListingDetail() {
               <Loader2 className="h-4 w-4 animate-spin" />
               Đang lưu…
             </div>
+          )}
+
+          {canManage && (
+            <CoverImagePicker
+              listing={listing}
+              open={coverPickerOpen}
+              onOpenChange={setCoverPickerOpen}
+            />
           )}
         </>
       )}

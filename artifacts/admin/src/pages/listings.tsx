@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, MapPin, Home, Search } from "lucide-react";
+import { GripVertical, Plus, MapPin, Home, Search } from "lucide-react";
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,7 +30,7 @@ const STATUS_BADGE: Record<Listing["status"], "default" | "secondary" | "outline
 };
 
 const LISTINGS_SELECT =
-  "id,title,description,address,city,country,bedrooms,bathrooms,max_guests,status,cover_image_url,created_at,updated_at";
+  "id,title,description,address,city,country,bedrooms,bathrooms,max_guests,status,cover_image_url,sort_order,created_at,updated_at";
 
 export default function Listings() {
   const { canManage } = useAuth();
@@ -48,6 +48,7 @@ export default function Listings() {
       const { data, error } = await supabase
         .from("listings")
         .select(LISTINGS_SELECT)
+        .order("sort_order", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as unknown as Listing[];
@@ -67,6 +68,52 @@ export default function Listings() {
       );
     });
   }, [listings, search, statusFilter]);
+
+  // Kéo thả sắp xếp chỉ bật khi đang xem đầy đủ danh sách (không lọc/tìm kiếm),
+  // để thứ tự hiển thị luôn khớp với thứ tự thật của toàn bộ bài đăng.
+  const canReorder = canManage && !search.trim() && statusFilter === "all";
+  const [orderedList, setOrderedList] = useState<Listing[]>([]);
+  const [dragId, setDragId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setOrderedList(filtered);
+  }, [filtered]);
+
+  const reorderMutation = useMutation({
+    mutationFn: async (order: Listing[]) => {
+      await Promise.all(
+        order.map((l, i) =>
+          supabase.from("listings").update({ sort_order: i }).eq("id", l.id)
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    },
+    onError: (err: Error) => {
+      toast({ variant: "destructive", title: "Không thể lưu thứ tự", description: err.message });
+      queryClient.invalidateQueries({ queryKey: ["listings"] });
+    },
+  });
+
+  const handleDrop = (targetId: string) => {
+    if (!dragId || dragId === targetId) {
+      setDragId(null);
+      return;
+    }
+    const from = orderedList.findIndex((l) => l.id === dragId);
+    const to = orderedList.findIndex((l) => l.id === targetId);
+    if (from === -1 || to === -1) {
+      setDragId(null);
+      return;
+    }
+    const next = [...orderedList];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setOrderedList(next);
+    setDragId(null);
+    reorderMutation.mutate(next);
+  };
 
   const createMutation = useMutation({
     mutationFn: async (values: Partial<Listing>) => {
@@ -162,41 +209,70 @@ export default function Listings() {
         </div>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((listing) => (
-            <Link key={listing.id} href={`/listings/${listing.id}`}>
-              <Card className="cursor-pointer overflow-hidden transition-all hover:border-primary/50 hover:shadow-md">
-                <div className="relative aspect-video w-full bg-muted">
-                  {listing.cover_image_url ? (
-                    <img
-                      src={listing.cover_image_url}
-                      alt={listing.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                      <Home className="h-8 w-8" />
+          {orderedList.map((listing) => (
+            <div
+              key={listing.id}
+              onDragOver={(e) => canReorder && e.preventDefault()}
+              onDrop={(e) => {
+                if (!canReorder) return;
+                e.preventDefault();
+                handleDrop(listing.id);
+              }}
+              className={dragId === listing.id ? "opacity-50" : ""}
+            >
+              <Link href={`/listings/${listing.id}`}>
+                <Card className="relative cursor-pointer overflow-hidden transition-all hover:border-primary/50 hover:shadow-md">
+                  {canReorder && (
+                    <div
+                      draggable
+                      onDragStart={(e) => {
+                        e.stopPropagation();
+                        setDragId(listing.id);
+                      }}
+                      onDragEnd={() => setDragId(null)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Kéo để đổi vị trí"
+                      className="absolute left-2 top-2 z-10 flex h-7 w-7 cursor-grab items-center justify-center rounded-md bg-background/90 text-muted-foreground shadow-sm active:cursor-grabbing"
+                    >
+                      <GripVertical className="h-4 w-4" />
                     </div>
                   )}
-                  <div className="absolute right-2 top-2">
-                    <Badge variant={STATUS_BADGE[listing.status]} className="capitalize shadow-sm">
-                      {t.status[listing.status]}
-                    </Badge>
+                  <div className="relative aspect-video w-full bg-muted">
+                    {listing.cover_image_url ? (
+                      <img
+                        src={listing.cover_image_url}
+                        alt={listing.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                        <Home className="h-8 w-8" />
+                      </div>
+                    )}
+                    <div className="absolute right-2 top-2">
+                      <Badge variant={STATUS_BADGE[listing.status]} className="capitalize shadow-sm">
+                        {t.status[listing.status]}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="mb-2 line-clamp-1 text-lg font-semibold">{listing.title}</h3>
-                  <div className="mb-4 flex items-center text-sm text-muted-foreground">
-                    <MapPin className="mr-1 h-3.5 w-3.5" />
-                    <span className="line-clamp-1">
-                      {[listing.city, listing.country].filter(Boolean).join(", ") || "—"}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {listing.bedrooms} {t.listings.bedrooms} · {listing.bathrooms} {t.listings.bathrooms} · {listing.max_guests} {t.listings.maxGuests}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+                  <CardContent className="p-4">
+                    <h3 className="mb-2 line-clamp-1 text-lg font-semibold">{listing.title}</h3>
+                    <div className="mb-4 flex items-center text-sm text-muted-foreground">
+                      <MapPin className="mr-1 h-3.5 w-3.5" />
+                      <span className="line-clamp-1">
+                        {[listing.city, listing.country].filter(Boolean).join(", ") || "—"}
+                      </span>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {listing.bedrooms} {t.listings.bedrooms} · {listing.bathrooms} {t.listings.bathrooms} · {listing.max_guests} {t.listings.maxGuests}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
           ))}
         </div>
       )}

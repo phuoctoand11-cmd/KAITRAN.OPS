@@ -105,6 +105,7 @@ export interface Listing {
   airbnb_listing_name?: string | null;
   video_url?: string | null;
   image_link_url?: string | null;
+  sort_order?: number | null;
 }
 
 export interface ListingRoom {
