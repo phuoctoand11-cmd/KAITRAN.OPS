@@ -33,6 +33,7 @@ import {
   type ListingImage,
   type ListingRoom,
 } from "@/lib/supabase";
+import { compressImage } from "@/lib/image-compress";
 
 interface Props {
   listing: Listing;
@@ -168,7 +169,8 @@ export function ListingImagesTab({ listing, canManage }: Props) {
     try {
       const startPosition = (images ?? []).length;
       let i = 0;
-      for (const file of Array.from(files)) {
+      for (const rawFile of Array.from(files)) {
+        const file = await compressImage(rawFile);
         const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
         const path = `${listing.id}/${crypto.randomUUID()}-${safeName}`;
         const { error: upErr } = await supabase.storage

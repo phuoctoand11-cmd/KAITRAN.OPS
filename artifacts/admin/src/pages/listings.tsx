@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { GripVertical, Plus, MapPin, Home, Search } from "lucide-react";
+import { GripVertical, ImageDown, Plus, MapPin, Home, Search, Trash2 } from "lucide-react";
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ListingFormDialog } from "@/components/listings/ListingFormDialog";
+import { CompressAllImagesDialog } from "@/components/listings/CompressAllImagesDialog";
+import { CleanupDuplicateImagesDialog } from "@/components/listings/CleanupDuplicateImagesDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { supabase, type Listing } from "@/lib/supabase";
@@ -41,6 +43,8 @@ export default function Listings() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [createOpen, setCreateOpen] = useState(false);
+  const [compressOpen, setCompressOpen] = useState(false);
+  const [cleanupOpen, setCleanupOpen] = useState(false);
 
   const { data: listings, isLoading, error } = useQuery({
     queryKey: ["listings"],
@@ -143,10 +147,20 @@ export default function Listings() {
       title={t.listings.title}
       action={
         canManage ? (
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t.listings.newListing}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setCleanupOpen(true)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Dọn ảnh trùng
+            </Button>
+            <Button variant="outline" onClick={() => setCompressOpen(true)}>
+              <ImageDown className="mr-2 h-4 w-4" />
+              Nén ảnh gốc
+            </Button>
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              {t.listings.newListing}
+            </Button>
+          </div>
         ) : null
       }
     >
@@ -284,6 +298,14 @@ export default function Listings() {
           onSubmit={(v) => createMutation.mutate(v)}
           submitting={createMutation.isPending}
         />
+      )}
+
+      {canManage && (
+        <CompressAllImagesDialog open={compressOpen} onOpenChange={setCompressOpen} />
+      )}
+
+      {canManage && (
+        <CleanupDuplicateImagesDialog open={cleanupOpen} onOpenChange={setCleanupOpen} />
       )}
     </AppLayout>
   );

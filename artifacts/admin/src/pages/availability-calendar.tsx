@@ -15,10 +15,10 @@ import {
   startOfWeek,
   subWeeks,
 } from "date-fns";
-import { CalendarDays, ChevronLeft, ChevronRight, LayoutGrid, Loader2, StretchHorizontal, X } from "lucide-react";
+import { CalendarDays, Check, ChevronLeft, ChevronRight, Copy, LayoutGrid, Link2, Loader2, StretchHorizontal, X } from "lucide-react";
 
 import { AppLayout } from "@/components/layout/AppLayout";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +41,7 @@ import {
   type ListingCalStatus,
   LISTING_CAL_STATUSES,
   LISTING_CAL_STATUS_LABELS,
+  AVAILABILITY_CALENDAR_DRIVE_LINK_KEY,
 } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 
@@ -124,6 +125,47 @@ export default function AvailabilityCalendar() {
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
   const [lastClickedDate, setLastClickedDate] = useState<string | null>(null);
+  const [driveLink, setDriveLink] = useState("");
+  const [driveLinkCopied, setDriveLinkCopied] = useState(false);
+
+  const driveLinkQuery = useQuery({
+    queryKey: ["app-setting", AVAILABILITY_CALENDAR_DRIVE_LINK_KEY],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", AVAILABILITY_CALENDAR_DRIVE_LINK_KEY)
+        .maybeSingle();
+      if (error) throw error;
+      return data?.value ?? null;
+    },
+  });
+
+  useEffect(() => {
+    setDriveLink(driveLinkQuery.data ?? "");
+  }, [driveLinkQuery.data]);
+
+  const saveDriveLinkMutation = useMutation({
+    mutationFn: async (value: string) => {
+      const { error } = await supabase
+        .from("app_settings")
+        .upsert({ key: AVAILABILITY_CALENDAR_DRIVE_LINK_KEY, value: value.trim() || null });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["app-setting", AVAILABILITY_CALENDAR_DRIVE_LINK_KEY] });
+      toast({ title: "Đã lưu link" });
+    },
+    onError: (err: Error) =>
+      toast({ variant: "destructive", title: "Không thể lưu link", description: err.message }),
+  });
+
+  const copyDriveLink = async () => {
+    if (!driveLinkQuery.data) return;
+    await navigator.clipboard.writeText(driveLinkQuery.data);
+    setDriveLinkCopied(true);
+    setTimeout(() => setDriveLinkCopied(false), 1500);
+  };
 
   // ── Visible date range depends on the active view ───────────────────────
   const periodStart = view === "week" ? startOfWeek(cursor, { weekStartsOn: 1 }) : startOfMonth(cursor);
@@ -262,6 +304,47 @@ export default function AvailabilityCalendar() {
 
   return (
     <AppLayout title="Lịch trống">
+      {/* ── Drive link for the combined availability calendar ───────────── */}
+      {(canManage || driveLinkQuery.data) && (
+        <Card className="mb-4">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-1.5">
+              <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+              Lịch trống tất cả các căn
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {canManage ? (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://drive.google.com/…"
+                  value={driveLink}
+                  onChange={(e) => setDriveLink(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveDriveLinkMutation.mutate(driveLink);
+                  }}
+                />
+                <Button
+                  onClick={() => saveDriveLinkMutation.mutate(driveLink)}
+                  disabled={saveDriveLinkMutation.isPending || driveLink === (driveLinkQuery.data ?? "")}
+                  size="sm"
+                >
+                  {saveDriveLinkMutation.isPending && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
+                  Lưu
+                </Button>
+              </div>
+            ) : driveLinkQuery.data ? (
+              <div className="flex gap-2">
+                <Input readOnly value={driveLinkQuery.data} className="text-xs" />
+                <Button type="button" variant="outline" size="sm" onClick={copyDriveLink}>
+                  {driveLinkCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            ) : null}
+          </CardContent>
+        </Card>
+      )}
+
       {/* ── Toolbar ──────────────────────────────────────────────────────── */}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">

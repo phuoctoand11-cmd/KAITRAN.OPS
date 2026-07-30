@@ -319,6 +319,14 @@ export interface ListingBlock {
 
 export const LISTINGS_BUCKET = "listing-images";
 
+export interface AppSetting {
+  key: string;
+  value: string | null;
+  updated_at: string;
+}
+
+export const AVAILABILITY_CALENDAR_DRIVE_LINK_KEY = "availability_calendar_drive_link";
+
 // ── HR / Recruitment types ────────────────────────────────────────
 
 export type EmployeeStatus =
