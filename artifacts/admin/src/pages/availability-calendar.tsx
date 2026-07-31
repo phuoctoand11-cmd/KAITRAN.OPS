@@ -90,23 +90,8 @@ const PLATFORM_LABEL: Record<string, string> = {
   other: "Kênh khác",
 };
 
-const SOURCE_OPTIONS = [
-  { value: "all", label: "Tất cả nguồn" },
-  { value: "airbnb", label: "Airbnb" },
-  { value: "booking", label: "Booking.com" },
-  { value: "agoda", label: "Agoda" },
-  { value: "other", label: "Kênh khác" },
-  { value: "manual", label: "Thủ công" },
-];
-
 function cellKey(listingId: string, date: string) {
   return `${listingId}:${date}`;
-}
-
-/** iCal-synced rows are tagged note="ical:<platform>" — everything else is a manual admin edit. */
-function sourceOf(entry: ListingCalendar | undefined): string {
-  if (entry?.note?.startsWith("ical:")) return entry.note.slice(5);
-  return "manual";
 }
 
 function cellLabel(_entry: ListingCalendar | undefined, status: ListingCalStatus): string {
@@ -121,7 +106,6 @@ export default function AvailabilityCalendar() {
   const [view, setView] = useState<CalendarView>("timeline");
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
   const [listingFilter, setListingFilter] = useState<string>("all");
-  const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
   const [lastClickedDate, setLastClickedDate] = useState<string | null>(null);
@@ -214,15 +198,13 @@ export default function AvailabilityCalendar() {
   const allListings = listingsQuery.data ?? [];
   const listings = listingFilter === "all" ? allListings : allListings.filter((l) => l.id === listingFilter);
 
-  /** Effective status for a cell — entries that don't match the source filter display as "available". */
   const statusFor = useCallback(
     (listingId: string, ds: string): { status: ListingCalStatus; entry: ListingCalendar | undefined } => {
       const entry = calByKey.get(cellKey(listingId, ds));
       if (!entry) return { status: "available", entry: undefined };
-      if (sourceFilter !== "all" && sourceOf(entry) !== sourceFilter) return { status: "available", entry: undefined };
       return { status: entry.status, entry };
     },
-    [calByKey, sourceFilter],
+    [calByKey],
   );
 
   // ── Selection (single villa row at a time) ─────────────────────────────
@@ -403,19 +385,6 @@ export default function AvailabilityCalendar() {
               {allListings.map((l) => (
                 <SelectItem key={l.id} value={l.id}>
                   {l.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={sourceFilter} onValueChange={setSourceFilter}>
-            <SelectTrigger className="h-9 w-[150px]">
-              <SelectValue placeholder="Nguồn" />
-            </SelectTrigger>
-            <SelectContent>
-              {SOURCE_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
                 </SelectItem>
               ))}
             </SelectContent>
