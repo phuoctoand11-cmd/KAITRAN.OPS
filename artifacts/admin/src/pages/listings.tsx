@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { GripVertical, ImageDown, Plus, MapPin, Home, Search, Trash2 } from "lucide-react";
+import { GripVertical, ImageDown, Plus, MapPin, Home, RefreshCw, Search, Trash2 } from "lucide-react";
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ListingFormDialog } from "@/components/listings/ListingFormDialog";
 import { CompressAllImagesDialog } from "@/components/listings/CompressAllImagesDialog";
 import { CleanupDuplicateImagesDialog } from "@/components/listings/CleanupDuplicateImagesDialog";
+import { SyncAllCalendarsDialog } from "@/components/listings/SyncAllCalendarsDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth-context";
 import { supabase, type Listing } from "@/lib/supabase";
@@ -45,6 +46,7 @@ export default function Listings() {
   const [createOpen, setCreateOpen] = useState(false);
   const [compressOpen, setCompressOpen] = useState(false);
   const [cleanupOpen, setCleanupOpen] = useState(false);
+  const [syncOpen, setSyncOpen] = useState(false);
 
   const { data: listings, isLoading, error } = useQuery({
     queryKey: ["listings"],
@@ -148,6 +150,10 @@ export default function Listings() {
       action={
         canManage ? (
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setSyncOpen(true)}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Đồng bộ tất cả lịch
+            </Button>
             <Button variant="outline" onClick={() => setCleanupOpen(true)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Dọn ảnh trùng
@@ -306,6 +312,10 @@ export default function Listings() {
 
       {canManage && (
         <CleanupDuplicateImagesDialog open={cleanupOpen} onOpenChange={setCleanupOpen} />
+      )}
+
+      {canManage && (
+        <SyncAllCalendarsDialog open={syncOpen} onOpenChange={setSyncOpen} />
       )}
     </AppLayout>
   );
