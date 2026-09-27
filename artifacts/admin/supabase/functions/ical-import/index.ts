@@ -1,7 +1,7 @@
 // Edge Function: ical-import
-// Đọc link .ics đã lưu trong listing_ical_feeds, lấy ngày bận, ghi vào listing_calendar (status="blocked").
-// Mỗi feed: xóa các ngày do chính feed này ghi lần trước (nhận diện qua note="ical:<platform>"),
-// rồi ghi lại theo lịch mới nhất. Không đụng tới ngày admin tự set thủ công.
+// Đọc link .ics trong listing_ical_feeds và ĐỒNG BỘ HOÀN TOÀN lịch trống từ hôm nay trở đi:
+// mọi ngày bận trên Airbnb/OTA được ghi vào listing_calendar (status="blocked"); các ngày khác
+// (kể cả ngày khoá thủ công trong app) bị thay theo lịch OTA. Chỉ ghi khi mọi link của villa đọc OK.
 // GIỮ "Verify JWT" BẬT cho function này (gọi từ trong app, có đăng nhập).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -88,64 +88,80 @@ Deno.serve(async (req) => {
     });
   }
 
+  const byListing = new Map<string, NonNullable<typeof feeds>>();
+  for (const f of feeds ?? []) {
+    const arr = byListing.get(f.listing_id) ?? [];
+    arr.push(f);
+    byListing.set(f.listing_id, arr);
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
   const summary: unknown[] = [];
 
-  for (const feed of feeds ?? []) {
-    const tag = `ical:${feed.platform}`;
-    try {
-      const res = await fetch(feed.import_url, {
-        headers: { "User-Agent": "AirbnbOps-iCal/1.0" },
-        redirect: "follow",
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const ics = await res.text();
-      const events = parseEvents(ics);
+  for (const [listingId, group] of byListing) {
+    // date -> tag của kênh; lịch Airbnb/OTA là nguồn chuẩn cho từ hôm nay trở đi.
+    const dateTags = new Map<string, string>();
+    const perFeed: { feed: (typeof group)[number]; events: number; days: number; error?: string }[] = [];
 
-      // Xóa các ngày do chính feed này ghi lần trước — không đụng ngày admin tự set thủ công.
-      await supabase
+    for (const feed of group) {
+      try {
+        const res = await fetch(feed.import_url, {
+          headers: { "User-Agent": "AirbnbOps-iCal/1.0" },
+          redirect: "follow",
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const events = parseEvents(await res.text());
+        let days = 0;
+        for (const ev of events) {
+          if (!ev.start || !ev.end) continue;
+          for (const d of eachDate(ev.start, ev.end)) {
+            if (d < today) continue;
+            dateTags.set(d, `ical:${feed.platform}`);
+            days++;
+          }
+        }
+        perFeed.push({ feed, events: events.length, days });
+      } catch (e) {
+        perFeed.push({ feed, events: 0, days: 0, error: e instanceof Error ? e.message : String(e) });
+      }
+    }
+
+    // Chỉ ghi đè khi TẤT CẢ link của villa đọc thành công, tránh xoá nhầm khi lỗi mạng.
+    const allOk = perFeed.every((p) => !p.error);
+    let writeError: string | undefined;
+    if (allOk) {
+      const { error: derr } = await supabase
         .from("listing_calendar")
         .delete()
-        .eq("listing_id", feed.listing_id)
-        .eq("note", tag);
+        .eq("listing_id", listingId)
+        .gte("date", today);
+      if (derr) writeError = derr.message;
 
-      const dateSet = new Set<string>();
-      for (const ev of events) {
-        if (!ev.start || !ev.end) continue;
-        for (const d of eachDate(ev.start, ev.end)) dateSet.add(d);
-      }
-
-      const rows = Array.from(dateSet).map((date) => ({
-        listing_id: feed.listing_id,
+      const rows = Array.from(dateTags, ([date, note]) => ({
+        listing_id: listingId,
         date,
         status: "blocked",
-        note: tag,
+        note,
       }));
-
-      if (rows.length > 0) {
+      if (!writeError && rows.length > 0) {
         const { error: ierr } = await supabase
           .from("listing_calendar")
           .upsert(rows, { onConflict: "listing_id,date" });
-        if (ierr) throw new Error(ierr.message);
+        if (ierr) writeError = ierr.message;
       }
+    }
 
+    for (const p of perFeed) {
+      const err = p.error ?? writeError ?? (allOk ? undefined : "Bỏ qua: link khác của villa này bị lỗi");
       await supabase
         .from("listing_ical_feeds")
-        .update({ last_synced_at: new Date().toISOString(), last_status: "ok" })
-        .eq("id", feed.id);
-
-      summary.push({
-        feed: feed.id,
-        platform: feed.platform,
-        events_found: events.length,
-        days_blocked: rows.length,
-      });
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      await supabase
-        .from("listing_ical_feeds")
-        .update({ last_synced_at: new Date().toISOString(), last_status: msg })
-        .eq("id", feed.id);
-      summary.push({ feed: feed.id, platform: feed.platform, error: msg });
+        .update({ last_synced_at: new Date().toISOString(), last_status: err ?? "ok" })
+        .eq("id", p.feed.id);
+      summary.push(
+        err
+          ? { feed: p.feed.id, platform: p.feed.platform, error: err }
+          : { feed: p.feed.id, platform: p.feed.platform, events_found: p.events, days_blocked: p.days },
+      );
     }
   }
 

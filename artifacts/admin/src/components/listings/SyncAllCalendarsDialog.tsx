@@ -78,9 +78,10 @@ export function SyncAllCalendarsDialog({ open, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>Đồng bộ tất cả lịch</DialogTitle>
           <DialogDescription>
-            Đọc link iCal Airbnb (và các kênh khác đã lưu) của từng bài đăng, cập nhật ngày bận vào
-            lịch trống. Chỉ thay các ngày do chính lần đồng bộ trước ghi ra — không đụng ngày bạn
-            tự khoá thủ công.
+            Đọc link iCal Airbnb (và các kênh khác đã lưu) của từng bài đăng rồi đồng bộ lịch trống
+            theo đúng lịch Airbnb từ hôm nay trở đi — gồm mọi ngày bận, kể cả ngày khoá thủ công
+            (ngày khoá thủ công trong app sẽ bị thay theo Airbnb). Nếu link của villa nào bị lỗi,
+            lịch villa đó được giữ nguyên.
           </DialogDescription>
         </DialogHeader>
 
